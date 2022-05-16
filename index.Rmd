@@ -1,0 +1,78 @@
+---
+title: "Proyecto 1 Modelizacion Espacio Temporal"
+author: "Josseling Quiroz & Carlos Zuñiga"
+date: "05/16/2022"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r results='hide', warning = FALSE, message=FALSE}
+library(FME)         # package used for calibration and uncertainty estimations
+library(tidyverse)   # package used for data manipulation
+library(gridExtra)   # package used for graphics with ggplot2
+library(corrplot)
+library(gplots)
+library(RColorBrewer)
+library(factoextra)
+library(ggplot2)
+library(ggpubr)
+library(ggsci)
+library(scales)
+library (lubridate)
+library(patchwork)
+library (nsga2R)
+library (mco)
+```
+
+```{r results='hide', warning = FALSE, message=FALSE}
+# read data
+library(readr)
+inp <- read_csv("inp.csv", col_types = cols(`P (mm)...2` = col_number(), 
+    `PET (mm)...3` = col_number(), `SM (mm)...4` = col_number(), 
+    `ETR (mm)...5` = col_number(), `Qs (mm)...6` = col_number(), 
+    `P (mm)...7` = col_number(), `PET (mm)...8` = col_number(), 
+    `SM (mm)...9` = col_number(), `ETR (mm)...10` = col_number(), 
+    `Qs (mm)...11` = col_number(), `P (mm)...12` = col_number(), 
+    `PET (mm)...13` = col_number(), `SM (mm)...14` = col_number(), 
+    `ETR (mm)...15` = col_number(), `Qs (mm)...16` = col_number(), 
+    `P (mm)...17` = col_number(), `PET (mm)...18` = col_number(), 
+    `SM (mm)...19` = col_number(), `ETR (mm)...20` = col_number(), 
+    `Qs (mm)...21` = col_number(), `P (mm)...22` = col_number(), 
+    `PET (mm)...23` = col_number(), `SM (mm)...24` = col_number(), 
+    `ETR (mm)...25` = col_number(), `Qs (mm)...26` = col_number(), 
+    MEI = col_number()))
+View(inp)
+
+# read input into dataframe
+names(inp) <- c("Date","P1","PET1","Q1","ETA1","SM1","P2","PET2","Q2","ETA2","SM2","P3","PET3","Q3","ETA3","SM3","P4","PET4","Q4","ETA4","SM4","P5","PET5","Q5","ETA5","SM5","MEI")			            # define column names for direct use in model code
+attach(inp,warn.conflicts = F)	
+head(inp)
+dim(inp) 
+
+```
+```{r results='hide', warning = FALSE, message=FALSE}
+
+sumstat <- summary(inp)            # summary statistics
+write.csv(sumstat, file="sumstat.csv")  # write output file to disc
+
+# P-Q boxplots for comparison
+b0 <- ggboxplot(P1,color="black", xlab="P1", ylab="P1 (mm/month)", ylim=c(0,1000)) 
+b00 <- ggboxplot(Q1,color="blue", xlab="Q1", ylab="Q1 (mm/month)", ylim=c(0,1000)) 
+b1 <- ggboxplot(P2,color="black", xlab="P2", ylab="P2 (mm/month)", ylim=c(0,1000)) 
+b11 <- ggboxplot(Q2,color="blue", xlab="Q2", ylab="Q2 (mm/month)", ylim=c(0,1000)) 
+
+plot <- ggarrange(b0, b00,
+                  b1, b11,
+                  ncol = 2, nrow = 2,  align = "hv", 
+                  widths=c(10,10,10), heights=c(5,5,5))
+
+ggexport(plotlist = plot, filename = "Ts_boxplot_P1.png", res = 300)
+
+plot
+```
+
