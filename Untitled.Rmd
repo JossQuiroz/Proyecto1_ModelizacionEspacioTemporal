@@ -30,10 +30,25 @@ library (mco)
 ```
 
 ```{r results='hide', warning = FALSE, message=FALSE}
-################################################################################
 # read data
+library(readr)
+inp <- read_csv("inp.csv", col_types = cols(`P (mm)...2` = col_number(), 
+    `PET (mm)...3` = col_number(), `SM (mm)...4` = col_number(), 
+    `ETR (mm)...5` = col_number(), `Qs (mm)...6` = col_number(), 
+    `P (mm)...7` = col_number(), `PET (mm)...8` = col_number(), 
+    `SM (mm)...9` = col_number(), `ETR (mm)...10` = col_number(), 
+    `Qs (mm)...11` = col_number(), `P (mm)...12` = col_number(), 
+    `PET (mm)...13` = col_number(), `SM (mm)...14` = col_number(), 
+    `ETR (mm)...15` = col_number(), `Qs (mm)...16` = col_number(), 
+    `P (mm)...17` = col_number(), `PET (mm)...18` = col_number(), 
+    `SM (mm)...19` = col_number(), `ETR (mm)...20` = col_number(), 
+    `Qs (mm)...21` = col_number(), `P (mm)...22` = col_number(), 
+    `PET (mm)...23` = col_number(), `SM (mm)...24` = col_number(), 
+    `ETR (mm)...25` = col_number(), `Qs (mm)...26` = col_number(), 
+    MEI = col_number()))
+View(inp)
 
-inp <- read.csv("inp.csv",na.strings="")    		    # read input into dataframe
+# read input into dataframe
 names(inp) <- c("Date","P1","PET1","Q1","ETA1","SM1","P2","PET2","Q2","ETA2","SM2","P3","PET3","Q3","ETA3","SM3","P4","PET4","Q4","ETA4","SM4","P5","PET5","Q5","ETA5","SM5","MEI")			            # define column names for direct use in model code
 attach(inp,warn.conflicts = F)	
 head(inp)
@@ -58,81 +73,6 @@ plot <- ggarrange(b0, b00,
 
 ggexport(plotlist = plot, filename = "Ts_boxplot_P1.png", res = 300)
 
-```
-
-```{r results='hide', warning = FALSE, message=FALSE}
-### correlation analysis on full matrix
-corinp <- cor (inp[,2:27], use = "pairwise.complete.obs", method="spearman")      # calculates correlation coefficients
-write.csv (corinp, file="cor5cuencas.csv")    # output matrix
-
-corrplot(corinp, method="pie")                # nice pie plot
-```
-
-```{r results='hide', warning = FALSE, message=FALSE}
-
-### bivariate plots with histograms and coefficients###
-panel.cor <- function(x, y, method="spearman", digits=3, cex.cor=1.2)
-{
-  usr <- par("usr"); on.exit(par(usr))
-  par(usr = c(0, 1, 0, 1))
-  r <- cor(x, y, use = "pairwise.complete.obs", method=method)
-  ra <- cor.test(x, y, method=method)$p.value
-  txt <- round(r, digits)
-  sig <- 1
-  prefix <- ""
-  if(ra <= 0.1) prefix <- "."
-  if(ra <= 0.05) prefix <- "*"
-  if(ra <= 0.01) prefix <- "**"
-  if(ra <= 0.001) prefix <- "***"
-  if(ra <= 0.001) sig <- 2
-  color <- 2
-  if(r > 0) color <- "black"
-  #         color <- "gray10"
-  if(r < 0) color <- "gray50"
-  txt <- paste(txt, prefix, sep="\n")
-  text(0.5, 0.5, txt, cex = cex.cor, font=sig, col=color)
-}
-```
-
-```{r results='hide', warning = FALSE, message=FALSE}
-## Put histograms on the diagonal
-panel.hist <- function(x, ...)
-{
-  usr <- par("usr"); on.exit(par(usr))
-  par(usr = c(usr[1:2], 0, 2) )
-  h <- hist(x, plot = FALSE)
-  breaks <- h$breaks; nB <- length(breaks)
-  y <- h$counts; y <- y/max(y)
-  rect(breaks[-nB], 0, breaks[-1], y, col="cyan", ...)
-  #         rect(breaks[-nB], 0, breaks[-1], y, col="gray", ...)
-}
-
-op <- par(mfrow=c(1,1), pty="s")      ##### create correlation matrix with histograms and coefficients
-pairs(inp[,2:26],
-      lower.panel = panel.cor, upper.panel = panel.smooth,
-      diag.panel = panel.hist)
-par(op)  
-```
-
-```{r results='hide', warning = FALSE, message=FALSE}
-########## Regression analysis ######################################
-PQ1 <- ggscatter(inp, x = "P1", y = "Q1",xlim=c(0,1000), ylim=c(0,1000),
-                 size = 4, add = "reg.line")+
-  stat_cor(label.x=200, label.y = -20) +
-  stat_regline_equation(label.x=200, label.y = 0)
-p1 <- PQ1 + labs(x = "Rainfall P (mm/month)", y = " Streamflow (mm/month)")
-
-PQ2 <- ggscatter(inp, x = "P2", y = "Q2",xlim=c(0,1000), ylim=c(0,1000),
-                 size = 4, add = "reg.line")+
-  stat_cor(label.x=200, label.y = -20) +
-  stat_regline_equation(label.x=200, label.y = 0)
-p2 <- PQ2 + labs(x = "Rainfall P (mm/month)", y = "Streamflow (mm/month)")
-
-grid.arrange(p1, p2, ncol = 2, nrow=1)
-
-```
-
-###### Time series analysis #################################
-
+plot
 ```
 
