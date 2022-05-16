@@ -1,9 +1,13 @@
 ---
-title: "Proyecto 1 Modelizacion Espacio Temporal"
+title: "Proyecto 1. Modelización Espacio Temporal"
 author: "Josseling Quiroz & Carlos Zuñiga"
 date: "05/16/2022"
 output: html_document
 ---
+# Universidad de Costa Rica
+
+## GF-0622 MODELIZACIÓN ESPACIO-TEMPORAL
+#### Profesores: Dr. Christian Birkel / Dr.Adolfo Quesada Román
 
 
 ```{r setup, include=FALSE}
@@ -75,4 +79,152 @@ ggexport(plotlist = plot, filename = "Ts_boxplot_P1.png", res = 300)
 
 plot
 ```
+
+### Visualizacion en grafico de barras de los percentiles de todas las 5 cuencas
+```{r results='hide', warning = FALSE, message=FALSE}
+percentiles5 <- read_csv("percentiles5.csv")
+
+ggplot(percentiles5, aes(x=reorder(Percentiles, -`P(mm)rioesquinas`), y=`P(mm)rioesquinas`)) +
+  ggtitle("Precipitacion Rio Esquinas") +
+  xlab("Percentiles") + 
+  ylab("Precipitacion") +  
+  geom_col() +
+  geom_text(aes(label=`P(mm)rioesquinas`), vjust=-0.3, size=3.5)
+
+ggplot(percentiles5, aes(x=reorder(Percentiles, -`P(mm)riozota`), y=`P(mm)riozota`)) +
+  ggtitle("Precipitacion Rio Zota") +
+  xlab("Percentiles") + 
+  ylab("Precipitacion") +  
+  geom_col() +
+  geom_text(aes(label=`P(mm)rioesquinas`), vjust=-0.3, size=3.5)
+
+ggplot(percentiles5, aes(x=reorder(Percentiles, -`P(mm)riotempisque`), y=`P(mm)riotempisque`)) +
+  ggtitle("Precipitacion Rio Tempisque") +
+  xlab("Percentiles") + 
+  ylab("Precipitacion") +  
+  geom_col() +
+  geom_text(aes(label=`P(mm)rioesquinas`), vjust=-0.3, size=3.5)
+
+ggplot(percentiles5, aes(x=reorder(Percentiles, -`P(mm)rionaranjo`), y=`P(mm)rionaranjo`)) +
+  ggtitle("Precipitacion Rio Naranjo") +
+  xlab("Percentiles") + 
+  ylab("Precipitacion") +  
+  geom_col() +
+  geom_text(aes(label=`P(mm)rioesquinas`), vjust=-0.3, size=3.5)
+
+ggplot(percentiles5, aes(x=reorder(Percentiles, -`P(mm)riopiedras`), y=`P(mm)riopiedras`)) +
+  ggtitle("Precipitacion Rio Piedras") +
+  xlab("Percentiles") + 
+  ylab("Precipitacion") +  
+  geom_col() +
+  geom_text(aes(label=`P(mm)rioesquinas`), vjust=-0.3, size=3.5)
+
+```
+
+### correlation analysis on full matrix
+```{r results='hide', warning = FALSE, message=FALSE}
+corinp <- cor (inp[,2:27], use = "pairwise.complete.obs", method="spearman")      # calculates correlation coefficients
+write.csv (corinp, file="cor5cuencas.csv")    # output matrix
+
+corrplot(corinp, method="pie")                # nice pie plot
+
+```
+
+### bivariate plots with histograms and coefficients
+## matriz 1 sub cuencas Esquinas-Zota-Piedras
+## matriz 2 sub cuencas tempisque y naranjo
+```{r results='hide', warning = FALSE, message=FALSE}
+panel.cor <- function(x, y, method="spearman", digits=3, cex.cor=1.2)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- cor(x, y, use = "pairwise.complete.obs", method=method)
+  ra <- cor.test(x, y, method=method)$p.value
+  txt <- round(r, digits)
+  sig <- 1
+  prefix <- ""
+  if(ra <= 0.1) prefix <- "."
+  if(ra <= 0.05) prefix <- "*"
+  if(ra <= 0.01) prefix <- "**"
+  if(ra <= 0.001) prefix <- "***"
+  if(ra <= 0.001) sig <- 2
+  color <- 2
+  if(r > 0) color <- "black"
+  #         color <- "gray10"
+  if(r < 0) color <- "gray50"
+  txt <- paste(txt, prefix, sep="\n")
+  text(0.5, 0.5, txt, cex = cex.cor, font=sig, col=color)
+}
+
+
+```
+
+## Put histograms on the diagonal
+```{r results='hide', warning = FALSE, message=FALSE}
+panel.hist <- function(x, ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(usr[1:2], 0, 2) )
+  h <- hist(x, plot = FALSE)
+  breaks <- h$breaks; nB <- length(breaks)
+  y <- h$counts; y <- y/max(y)
+  rect(breaks[-nB], 0, breaks[-1], y, col="cyan", ...)
+  #         rect(breaks[-nB], 0, breaks[-1], y, col="gray", ...)
+}
+
+op <- par(mfrow=c(1,1), pty="s")      ##### create correlation matrix with histograms and coefficients
+pairs(inp[,2:16],
+      lower.panel = panel.cor, upper.panel = panel.smooth,
+      diag.panel = panel.hist)
+par(op)  
+
+
+panel.hist <- function(x, ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(usr[1:2], 0, 2) )
+  h <- hist(x, plot = FALSE)
+  breaks <- h$breaks; nB <- length(breaks)
+  y <- h$counts; y <- y/max(y)
+  rect(breaks[-nB], 0, breaks[-1], y, col="cyan", ...)
+  #         rect(breaks[-nB], 0, breaks[-1], y, col="gray", ...)
+}
+
+op <- par(mfrow=c(1,1), pty="s")        ##### create correlation matrix with histograms and coefficients
+pairs(inp[,16:27],
+      lower.panel = panel.cor, upper.panel = panel.smooth,
+      diag.panel = panel.hist)
+
+```
+
+### Regression analysis
+```{r results='hide', warning = FALSE, message=FALSE}
+
+PQ1 <- ggscatter(inp, x = "P1", y = "Q1",xlim=c(0,1000), ylim=c(0,1000),
+                 size = 4, add = "reg.line")+
+  stat_cor(label.x=200, label.y = -20) +
+  stat_regline_equation(label.x=200, label.y = 0)
+p1 <- PQ1 + labs(x = "Rainfall P (mm/month)", y = " Streamflow (mm/month)")
+
+PQ2 <- ggscatter(inp, x = "P2", y = "Q2",xlim=c(0,1000), ylim=c(0,1000),
+                 size = 4, add = "reg.line")+
+  stat_cor(label.x=200, label.y = -20) +
+  stat_regline_equation(label.x=200, label.y = 0)
+p2 <- PQ2 + labs(x = "Rainfall P (mm/month)", y = "Streamflow (mm/month)")
+
+grid.arrange(p1, p2, ncol = 2, nrow=1)
+
+
+```
+
+
+```{r results='hide', warning = FALSE, message=FALSE}
+
+```
+
+
+```{r results='hide', warning = FALSE, message=FALSE}
+
+```
+
 
